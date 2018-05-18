@@ -1,0 +1,42 @@
+PODS:
+  - FlatButtonKit (1.4.0)
+  - Pageboy (2.5.1)
+  - Realm (3.5.0):
+    - Realm/Headers (= 3.5.0)
+  - Realm/Headers (3.5.0)
+  - RealmSwift (3.5.0):
+    - Realm (= 3.5.0)
+  - TEQuickPageViewController (2.1.2)
+
+DEPENDENCIES:
+  - FlatButtonKit (from `https://github.com/keygx/FlatButtonKit`)
+  - Pageboy (~> 2.0)
+  - RealmSwift
+  - TEQuickPageViewController (~> 2.1)
+
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - Pageboy
+    - Realm
+    - RealmSwift
+    - TEQuickPageViewController
+
+EXTERNAL SOURCES:
+  FlatButtonKit:
+    :git: https://github.com/keygx/FlatButtonKit
+
+CHECKOUT OPTIONS:
+  FlatButtonKit:
+    :commit: beca0f3345e660c0e572b600b127755de7b6b74b
+    :git: https://github.com/keygx/FlatButtonKit
+
+SPEC CHECKSUMS:
+  FlatButtonKit: 6898776c50e924426940914ccb4db6702fe6bf1b
+  Pageboy: f0295ea949f0b0123a1b486fd347ea892d0078e0
+  Realm: 0378021c424e4e2bd6a0e63b27881e929d9b9ad1
+  RealmSwift: 3322562622fda2ad596985ead4d8d8be30cf838c
+  TEQuickPageViewController: e5a744eab09c03cb67042164eb6beb617b524d13
+
+PODFILE CHECKSUM: 72971507ba9d7eaa1020af6c866f205adf26902f
+
+COCOAPODS: 1.5.0

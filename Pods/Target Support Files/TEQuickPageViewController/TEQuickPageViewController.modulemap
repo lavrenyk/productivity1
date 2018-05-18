@@ -1,0 +1,6 @@
+framework module TEQuickPageViewController {
+  umbrella header "TEQuickPageViewController-umbrella.h"
+
+  export *
+  module * { export * }
+}
