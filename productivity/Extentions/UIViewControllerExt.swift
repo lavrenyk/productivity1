@@ -71,10 +71,27 @@ extension Date {
         print("Текущая дата:", now)
       
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "LLLL"
+        dateFormatter.dateFormat = "MMM"
         let nameOfMonth = dateFormatter.string(from: now)
         
         return nameOfMonth
+    }
+    
+    func currentDayOfMonth() -> String {
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd"
+        let dayOfMonth = dateFormatter.string(from: Date())
+        
+        return dayOfMonth
+    }
+    
+    func currentDayOfWeek() -> String {
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEEE"
+        
+        return dateFormatter.string(from: Date())
     }
     
    

@@ -39,13 +39,20 @@ class MainVC: UIViewController {
     @IBOutlet weak var tenSecondsLbl: UILabel!
     @IBOutlet weak var secondsLbl: UILabel!
     @IBOutlet weak var startBtn: UIButton!
-    @IBOutlet weak var todayCount: UILabel!
+    @IBOutlet weak var currentDayOfMonth: UILabel!
     @IBOutlet weak var monthCount: UILabel!
     @IBOutlet weak var mainBG: UIImageView!
     @IBOutlet weak var roundOneCompletionIndicator: UIView!
     @IBOutlet weak var rountTwoCompletionIndicator: UIView!
     @IBOutlet weak var roundTreeCompletionIndicator: UIView!
     @IBOutlet weak var roundFourComplitionIndicator: UIView!
+    @IBOutlet weak var dayOfWeekLbl: UILabel!
+    @IBOutlet weak var dayCountLbl: UILabel!
+    @IBOutlet weak var monthCountLbl: UILabel!
+    @IBOutlet weak var dayDateView: UIView!
+    @IBOutlet weak var dayStatView: UIView!
+    @IBOutlet weak var monthDateView: UIView!
+    @IBOutlet weak var monthStatView: UIView!
     
     var timerCount = 25
     let workTimer = 25
@@ -96,18 +103,26 @@ class MainVC: UIViewController {
             switch changes {
             case .initial:
                 
-                self?.monthCount.text = "\(Date().currentMonthName()): \(monthResult.count * 25) min."
-                self?.todayCount.text = "\(self?.dayMonth ?? 01)"
-                print("initial action, day results", dayResult.count)
-                print("initial action, month results", monthResult.count)
+                // Настраиваем показатели статистика за день
+                self?.currentDayOfMonth.text = "\(Date().currentDayOfMonth())"
+                self?.dayOfWeekLbl.text = "\(Date().currentDayOfWeek().uppercased())"
+                self?.dayCountLbl.text = "\(dayResult.count * 25)"
+                
+                // Настраиваем показатель статистика за месяц
+                self?.monthCount.text = "\(Date().currentMonthName().uppercased())"
+                self?.monthCountLbl.text = "\(monthResult.count * 25)"
                 
             case .update(_, _,  _, _):
                 
-                self?.monthCount.text = "\(Date().currentMonthName()): \(monthResult.count * 25) min."
-                self?.todayCount.text = "\(String(describing: self?.dayMonth))"
-//                "Today: \(dayResult.count * 25) min."
-                print("update action, day result", dayResult.count)
-                print("updete action, month results", monthResult.count)
+                // !!! ПОВТОРЯЮЩИЙСЯ КОД, НЕОБХОДИМО ИСПРАВИТЬ !!!
+                // Настраиваем показатели статистика за день
+                self?.currentDayOfMonth.text = "\(Date().currentDayOfMonth())"
+                self?.dayOfWeekLbl.text = "\(Date().currentDayOfWeek().uppercased())"
+                self?.dayCountLbl.text = "\(dayResult.count * 25)"
+                
+                // Настраиваем показатель статистика за месяц
+                self?.monthCount.text = "\(Date().currentMonthName().uppercased())"
+                self?.monthCountLbl.text = "\(monthResult.count * 25)"
             
             case .error(let error):
                 fatalError("\(error)")
@@ -187,13 +202,19 @@ class MainVC: UIViewController {
             
             if activityType == .rest || activityType == .longRest {
                 mainBG.image = UIImage(named: "restBG")
-                todayCount.textColor = #colorLiteral(red: 0.3333333433, green: 0.3333333433, blue: 0.3333333433, alpha: 1)
-                monthCount.textColor = #colorLiteral(red: 0.3333333433, green: 0.3333333433, blue: 0.3333333433, alpha: 1)
+                startBtn.setTitle("TAKE A REST", for: .normal)
+                dayDateView.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2)
+                dayStatView.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2)
+                monthDateView.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2)
+                monthStatView.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2)
             } else {
                 mainBG.image = UIImage(named: "mainBG")
                 setupComplitionIndicator()
-                todayCount.textColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
-                monthCount.textColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+                dayDateView.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.1)
+                dayStatView.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.1)
+                monthDateView.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.1)
+                monthStatView.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.1)
+                
             }
         }
     }
