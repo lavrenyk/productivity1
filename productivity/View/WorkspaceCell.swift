@@ -7,8 +7,9 @@
 //
 
 import UIKit
+import SwipeCellKit
 
-class WorkspaceCell: UITableViewCell {
+class WorkspaceCell: SwipeTableViewCell {
     
     // Outlets
     @IBOutlet weak var workspaceName: UILabel!
@@ -40,13 +41,13 @@ class WorkspaceCell: UITableViewCell {
 //        self.workspaceBtn.titleLabel?.text = "О"
 //    }
     
-    func configureCell(workspace: Category) {
-        self.workspaceName.text = workspace.name
-        self.workspaceName.textColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
-        self.workspaceDesc.text = workspace.desc
-        self.workspaceDesc.textColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
-        workspaceBtn.setTitle(String(workspace.name.prefix(1)), for: .normal)
-      
-    }
+//    func configureCell(workspace: Category) {
+//        self.workspaceName.text = workspace.name
+//        self.workspaceName.textColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+//        self.workspaceDesc.text = workspace.desc
+//        self.workspaceDesc.textColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+//        workspaceBtn.setTitle(String(workspace.name.prefix(1)), for: .normal)
+//
+//    }
 
 }

@@ -7,8 +7,9 @@
 //
 
 import UIKit
+import SwipeCellKit
 
-class ActivityCell: UITableViewCell {
+class ActivityCell: SwipeTableViewCell {
 
     // Outlets
     @IBOutlet weak var activityNameLbl: UILabel!

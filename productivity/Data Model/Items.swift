@@ -12,6 +12,13 @@ import RealmSwift
 class Item: Object {
     @objc dynamic var name: String = ""
     @objc dynamic var desc: String = ""
+    @objc dynamic var createdDate: Date?
+    @objc dynamic var dueDate: Date?
+    @objc dynamic var planCount: Int = 1
+    @objc dynamic var currentCount: Int = 0
+    @objc dynamic var finished: Bool = false
+    @objc dynamic var achived: Bool = false
+    let tasks = List<Task>()
     var parentCategory = LinkingObjects(fromType: Category.self, property: "items")
 }
 

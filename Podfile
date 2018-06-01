@@ -6,9 +6,10 @@ target 'productivity' do
   use_frameworks!
 
   # Pods for productivity
-  pod "TEQuickPageViewController", '~> 2.1'
-  pod 'FlatButtonKit', :git => 'https://github.com/keygx/FlatButtonKit'
-  pod 'RealmSwift'
-  pod 'Pageboy', '~> 2.0'
+  pod "TEQuickPageViewController"
+  pod "RealmSwift"
+  pod "SwipeCellKit"
+  pod "FontAwesomeKit.Swift"
+
 
 end
