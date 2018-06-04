@@ -14,10 +14,10 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "00955D3877D7D5E23B1782F94F715F32"
-               BlueprintName = "DottedProgressBar"
+               BlueprintIdentifier = "11F526C64342781B822A4C668FED884A"
+               BlueprintName = "ScrollableGraphView"
                ReferencedContainer = "container:Pods.xcodeproj"
-               BuildableName = "DottedProgressBar.framework">
+               BuildableName = "ScrollableGraphView.framework">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>

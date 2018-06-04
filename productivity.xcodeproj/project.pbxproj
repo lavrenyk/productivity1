@@ -53,6 +53,8 @@
 		0FBEF39120BC89AB004DD1B1 /* TimerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBEF39020BC89AB004DD1B1 /* TimerService.swift */; };
 		0FBEF39420C06C68004DD1B1 /* ActivityType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBEF39320C06C68004DD1B1 /* ActivityType.swift */; };
 		0FBEF39720C07A48004DD1B1 /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBEF39620C07A48004DD1B1 /* Counter.swift */; };
+		0FBEF3DF20C550AA004DD1B1 /* DateExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBEF3DE20C550AA004DD1B1 /* DateExt.swift */; };
+		0FBEF3E120C56D8C004DD1B1 /* StatDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBEF3E020C56D8C004DD1B1 /* StatDataService.swift */; };
 		101E60E9D9A49EBCB1DF6611 /* Pods_productivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFB2B34FE475E31D23D4091C /* Pods_productivity.framework */; };
 /* End PBXBuildFile section */
 
@@ -107,6 +109,8 @@
 		0FBEF39020BC89AB004DD1B1 /* TimerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerService.swift; sourceTree = "<group>"; };
 		0FBEF39320C06C68004DD1B1 /* ActivityType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityType.swift; sourceTree = "<group>"; };
 		0FBEF39620C07A48004DD1B1 /* Counter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Counter.swift; sourceTree = "<group>"; };
+		0FBEF3DE20C550AA004DD1B1 /* DateExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExt.swift; sourceTree = "<group>"; };
+		0FBEF3E020C56D8C004DD1B1 /* StatDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatDataService.swift; sourceTree = "<group>"; };
 		28FF8C293772592BBBC4B932 /* Pods-productivity.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-productivity.debug.xcconfig"; path = "Pods/Target Support Files/Pods-productivity/Pods-productivity.debug.xcconfig"; sourceTree = "<group>"; };
 		7770F8A0A34C3BCD1FA697B0 /* Pods-productivity.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-productivity.release.xcconfig"; path = "Pods/Target Support Files/Pods-productivity/Pods-productivity.release.xcconfig"; sourceTree = "<group>"; };
 		CFB2B34FE475E31D23D4091C /* Pods_productivity.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_productivity.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -129,6 +133,7 @@
 			children = (
 				0F1C415820AF69E400EA20E9 /* UserDataService.swift */,
 				0FBEF39020BC89AB004DD1B1 /* TimerService.swift */,
+				0FBEF3E020C56D8C004DD1B1 /* StatDataService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -138,6 +143,7 @@
 			children = (
 				0F355D3320B870D6007A50A0 /* RoundedCorners.swift */,
 				0FBEF38E20BB1F36004DD1B1 /* UIViewControllerExt.swift */,
+				0FBEF3DE20C550AA004DD1B1 /* DateExt.swift */,
 			);
 			path = Extentions;
 			sourceTree = "<group>";
@@ -421,19 +427,21 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-productivity/Pods-productivity-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/DottedProgressBar/DottedProgressBar.framework",
+				"${BUILT_PRODUCTS_DIR}/CRNotifications/CRNotifications.framework",
 				"${BUILT_PRODUCTS_DIR}/FontAwesomeKit.Swift/FontAwesomeKit_Swift.framework",
 				"${BUILT_PRODUCTS_DIR}/Realm/Realm.framework",
 				"${BUILT_PRODUCTS_DIR}/RealmSwift/RealmSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/ScrollableGraphView/ScrollableGraphView.framework",
 				"${BUILT_PRODUCTS_DIR}/SwipeCellKit/SwipeCellKit.framework",
 				"${BUILT_PRODUCTS_DIR}/TEQuickPageViewController/TEQuickPageViewController.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DottedProgressBar.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CRNotifications.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FontAwesomeKit_Swift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Realm.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RealmSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ScrollableGraphView.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwipeCellKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TEQuickPageViewController.framework",
 			);
@@ -456,9 +464,11 @@
 				0F1C415920AF69E400EA20E9 /* UserDataService.swift in Sources */,
 				0F355D3E20B9EB77007A50A0 /* Tasks.swift in Sources */,
 				0F84953A20AB2E6700610F96 /* PageViewController.swift in Sources */,
+				0FBEF3DF20C550AA004DD1B1 /* DateExt.swift in Sources */,
 				0F84954020AB620600610F96 /* RoundConerButton.swift in Sources */,
 				0F355D3820B8A40D007A50A0 /* AddCategoryVC.swift in Sources */,
 				0F1C415F20B328F300EA20E9 /* WorkspacesTableVC.swift in Sources */,
+				0FBEF3E120C56D8C004DD1B1 /* StatDataService.swift in Sources */,
 				0F84959120AF070400610F96 /* Items.swift in Sources */,
 				0F84954420AC0EA700610F96 /* ActivityVC.swift in Sources */,
 				0F84954620AC105E00610F96 /* CustomView.swift in Sources */,

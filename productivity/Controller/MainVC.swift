@@ -10,7 +10,7 @@ import UIKit
 import RealmSwift
 import FontAwesomeKit_Swift
 import UserNotifications
-import DottedProgressBar
+import ScrollableGraphView
 
 
 class MainVC: UIViewController {
@@ -22,6 +22,8 @@ class MainVC: UIViewController {
     }
     
     let realm = try! Realm()
+    
+    let daysOfWeek: [String] = ["MON", "TUE", "WEN", "THU", "FRI", "SAT", "SUN"]
 
     
     // Настройка центра Уведомлений
@@ -53,6 +55,7 @@ class MainVC: UIViewController {
     @IBOutlet weak var dayStatView: UIView!
     @IBOutlet weak var monthDateView: UIView!
     @IBOutlet weak var monthStatView: UIView!
+    @IBOutlet weak var statView: UIView!
     
     var timerCount = 25
     let workTimer = 25
@@ -65,12 +68,17 @@ class MainVC: UIViewController {
     var activityType: ActivityType = .work
     var numberOfRounds: Int = 0
     let dayMonth = Calendar.current.ordinality(of: .day, in: .month, for: Date())
+    var weekStat: Array<Int> = []
+    var weekGraphView: ScrollableGraphView!
 
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        weekStat = StatDataService.instance.loadWeekStat()
 
+        
         menuBtn.addTarget(self.revealViewController(), action: #selector(SWRevealViewController.revealToggle(_:)), for: .touchUpInside)
         self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
         self.view.addGestureRecognizer(self.revealViewController().tapGestureRecognizer())
@@ -80,11 +88,67 @@ class MainVC: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground(notif:)), name: .UIApplicationWillEnterForeground, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(taskDidSelect(notif:)), name: NOTIF_TODO_ITEM_DID_SELECT, object: nil)
         
-//         let progressBar = DottedProgressBar(frame: CGRect(x: 205, y: 395, width: 100, height: 10), numberOfDots: 4, initialProgress: 2)
-//        progressBar.progressAppearance = DottedProgressBar.DottedProgressAppearance(dotRadius: 5.0, dotsColor: UIColor.white, dotsProgressColor: UIColor.darkGray, backColor: #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0))
-//        view.addSubview(progressBar)
+// Создаем график
         
-        // Следим за обновлением данных по завершенным временным блокам
+        let graphView = ScrollableGraphView(frame: statView.frame, dataSource: self)
+        
+        // Setup the plot
+        let barPlot = BarPlot(identifier: "bar")
+        let referenceLines = ReferenceLines()
+        
+        barPlot.barWidth = 20
+        barPlot.barLineWidth = 0.5
+        barPlot.barLineColor = UIColor.darkGray
+        barPlot.barColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.4)
+        
+        barPlot.adaptAnimationType = ScrollableGraphViewAnimationType.elastic
+        barPlot.animationDuration = 1.5
+        
+        // Setup LinePlot
+        let linePlot = LinePlot(identifier: "darkLine")
+        linePlot.lineWidth = 1
+        linePlot.lineColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+        linePlot.lineStyle = ScrollableGraphViewLineStyle.smooth
+        
+        linePlot.shouldFill = true
+        linePlot.fillType = ScrollableGraphViewFillType.gradient
+        linePlot.fillGradientType = ScrollableGraphViewGradientType.linear
+        linePlot.fillGradientStartColor = #colorLiteral(red: 0.3333333333, green: 0.3333333333, blue: 0.3333333333, alpha: 1)
+        linePlot.fillGradientEndColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.1)
+        
+        linePlot.adaptAnimationType = ScrollableGraphViewAnimationType.elastic
+        
+        let dotPlot = DotPlot(identifier: "darkLineDot") // Add dots as well.
+        dotPlot.dataPointSize = 2
+        dotPlot.dataPointFillColor = UIColor.white
+        
+        dotPlot.adaptAnimationType = ScrollableGraphViewAnimationType.elastic
+        
+        // Setup reference lines
+        referenceLines.referenceLineColor = #colorLiteral(red: 0.6666666865, green: 0.6666666865, blue: 0.6666666865, alpha: 1)
+        referenceLines.referenceLineLabelColor = UIColor.white
+        referenceLines.dataPointLabelColor = UIColor.white
+        
+        referenceLines.positionType = .relative
+        
+        
+        
+        // Add everything
+        graphView.dataPointSpacing = 25
+        graphView.leftmostPointPadding = 35
+//        graphView.shouldRangeAlwaysStartAtZero = true
+        graphView.shouldAdaptRange = true
+//        graphView.addPlot(plot: dotPlot)
+//        graphView.addPlot(plot: linePlot)
+        graphView.addPlot(plot: barPlot)
+        graphView.backgroundFillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.3)
+        graphView.addReferenceLines(referenceLines: referenceLines)
+        
+        self.view.addSubview(graphView)
+        weekGraphView = graphView
+        
+        
+// Следим за обновлением данных по завершенным временным блокам
         
         var calendar = NSCalendar.current
         calendar.timeZone = TimeZone(abbreviation: "UTC")!
@@ -99,10 +163,16 @@ class MainVC: UIViewController {
         print(Date().startOfMonth()!, Date().endOfMonth()!)
         let dayResult = realm.objects(Task.self).filter("start > %@ && start < %@", todayAtMidnight, endToday!)
         let monthResult = realm.objects(Task.self).filter("start > %@ && start < %@", Date().startOfMonth()!, Date().endOfMonth()!)
+        
+        
         notificationTocken = dayResult.observe { [weak self] (changes: RealmCollectionChange ) in
             switch changes {
             case .initial:
                 
+                // загружаем показатели статистики за неделю
+                self?.weekStat = StatDataService.instance.loadWeekStat()
+                graphView.reload()
+
                 // Настраиваем показатели статистика за день
                 self?.currentDayOfMonth.text = "\(Date().currentDayOfMonth())"
                 self?.dayOfWeekLbl.text = "\(Date().currentDayOfWeek().uppercased())"
@@ -114,7 +184,11 @@ class MainVC: UIViewController {
                 
             case .update(_, _,  _, _):
                 
-                // !!! ПОВТОРЯЮЩИЙСЯ КОД, НЕОБХОДИМО ИСПРАВИТЬ !!!
+// !!! ПОВТОРЯЮЩИЙСЯ КОД, НЕОБХОДИМО ИСПРАВИТЬ !!!
+                // загружаем показатели статистики за неделю
+                self?.weekStat = StatDataService.instance.loadWeekStat()
+                graphView.reload()
+
                 // Настраиваем показатели статистика за день
                 self?.currentDayOfMonth.text = "\(Date().currentDayOfMonth())"
                 self?.dayOfWeekLbl.text = "\(Date().currentDayOfWeek().uppercased())"
@@ -129,22 +203,20 @@ class MainVC: UIViewController {
             }
         }
         
-        print(dayResult.count)
-        
         timerStartPosition()
 
-//        UserDataService.instance.initialCategoriesSetup()
+        if UserDefaults.standard.bool(forKey: "startSetuped") == false {
+            UserDataService.instance.initialCategoriesSetup()
+            UserDefaults.standard.set(true, forKey: "startSetuped")
+        }
 
     
         
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        print("will appear!")
-    }
     
     @objc func taskDidSelect(notif: Notification) {
+       
         taskLbl.text = UserDataService.instance.selectedItem?.name ?? "Select smth todo.."
         timerCount = workTimer + 1
         updateTimer()
@@ -157,11 +229,11 @@ class MainVC: UIViewController {
         triggerNotification()
         UserDefaults.standard.set(Date().timeIntervalSinceReferenceDate + Double(timerCount), forKey: "finishCount")
         mainCount = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(MainVC.updateTimer), userInfo: nil, repeats: true)
-        
     }
     
     
     @objc func updateTimer() {
+       
         if timerCount > 0 {
             timerCount -= 1
             tenMinuteLbl.text = "\(timerCount/60/10 % 6)"
@@ -169,8 +241,6 @@ class MainVC: UIViewController {
             tenSecondsLbl.text = "\(timerCount / 10 % 6)"
             secondsLbl.text = "\(timerCount % 10)"
         } else {
-            
-            
             if activityType == .work {
                 
                 // Сохраняем завершенный блок работы
@@ -203,17 +273,21 @@ class MainVC: UIViewController {
             if activityType == .rest || activityType == .longRest {
                 mainBG.image = UIImage(named: "restBG")
                 startBtn.setTitle("TAKE A REST", for: .normal)
-                dayDateView.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2)
-                dayStatView.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2)
-                monthDateView.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2)
-                monthStatView.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2)
+                dayDateView.isHidden = true
+                dayStatView.isHidden = true
+                monthDateView.isHidden = true
+                monthStatView.isHidden = true
+                statView.isHidden = true
+                weekGraphView.isHidden = true
             } else {
                 mainBG.image = UIImage(named: "mainBG")
                 setupComplitionIndicator()
-                dayDateView.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.1)
-                dayStatView.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.1)
-                monthDateView.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.1)
-                monthStatView.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.1)
+                dayDateView.isHidden = false
+                dayStatView.isHidden = false
+                monthDateView.isHidden = false
+                monthStatView.isHidden = false
+                statView.isHidden = false
+                weekGraphView.isHidden = false
                 
             }
         }
@@ -323,7 +397,6 @@ class MainVC: UIViewController {
 
 extension MainVC: UNUserNotificationCenterDelegate {
     
-    
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         
         print("Tapped in notification")
@@ -340,6 +413,32 @@ extension MainVC: UNUserNotificationCenterDelegate {
             completionHandler( [.alert,.sound,.badge])
             
         }
+    }
+}
+
+extension MainVC: ScrollableGraphViewDataSource {
+    
+    func value(forPlot plot: Plot, atIndex pointIndex: Int) -> Double {
+        // Return the data for each plot.
+        switch(plot.identifier) {
+        case "bar":
+            return Double(weekStat[pointIndex])
+        case "darkLine":
+            return Double(weekStat[pointIndex])
+        case "darkLineDot":
+            return Double(weekStat[pointIndex])
+        default:
+            return 0
+        }
+    }
+    
+    func label(atIndex pointIndex: Int) -> String {
+        return daysOfWeek[pointIndex]
+    }
+    
+    func numberOfPoints() -> Int {
+        
+        return 7
     }
 }
 

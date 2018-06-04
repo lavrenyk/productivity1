@@ -11,6 +11,6 @@
 #endif
 
 
-FOUNDATION_EXPORT double DottedProgressBarVersionNumber;
-FOUNDATION_EXPORT const unsigned char DottedProgressBarVersionString[];
+FOUNDATION_EXPORT double ScrollableGraphViewVersionNumber;
+FOUNDATION_EXPORT const unsigned char ScrollableGraphViewVersionString[];
 
