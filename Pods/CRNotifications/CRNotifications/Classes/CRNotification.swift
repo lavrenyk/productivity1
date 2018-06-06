@@ -23,7 +23,7 @@ class CRNotification: UIView {
 	}()
 	public fileprivate(set) lazy var messageView: UITextView = {
 		let view = UITextView()
-		view.font = UIFont.systemFont(ofSize: 14, weight: UIFont.Weight.semibold)
+		view.font = UIFont.systemFont(ofSize: 14, weight: UIFont.Weight.bold)
 		view.backgroundColor = .clear
 		view.textColor = .white
 		view.isUserInteractionEnabled = false

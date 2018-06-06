@@ -10,7 +10,7 @@ import Foundation
 
 extension NSDate {
     var startOfDay: NSDate {
-        return NSCalendar.current.startOfDay(for: Date()) as NSDate
+        return NSCalendar.current.startOfDay(for: NSDate() as Date) as NSDate
     }
     
     var endOfDay: NSDate {
@@ -52,8 +52,8 @@ extension Date {
         var startOfWeek = calendar.date(from: currentDateComponents)
         
         // т.к возвращаемое значение равно воскресенью, то мы добавляем 1 день
-        startOfWeek?.addTimeInterval(86400)
-
+//        startOfWeek?.addTimeInterval(86400)
+        
         return startOfWeek
     }
     
@@ -79,7 +79,7 @@ extension Date {
     }
     
     func currentMonthName() -> String {
-        let now = Date().startOfMonth()
+        let now = localDate()?.startOfMonth()
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM"
@@ -89,12 +89,13 @@ extension Date {
     }
     
   
-    
     func currentDayOfMonth() -> String {
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd"
         let dayOfMonth = dateFormatter.string(from: Date())
+        
+
         
         return dayOfMonth
     }
@@ -105,6 +106,21 @@ extension Date {
         dateFormatter.dateFormat = "EEEE"
         
         return dateFormatter.string(from: Date())
+    }
+    
+    func dayOfWeekShortName(date: Date) -> String {
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEE"
+                
+        return dateFormatter.string(from: date)
+    }
+    
+    func localDate() -> Date? {
+        
+        let localOffeset = TimeInterval(TimeZone.autoupdatingCurrent.secondsFromGMT(for: Date()))
+            
+        return Date().addingTimeInterval(localOffeset)
     }
     
     

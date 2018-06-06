@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FDF0F6FA5856194D1D6EDAF011D27DE9"
+               BlueprintIdentifier = "0D0C456E1E15063A7029E01F2E253BD9"
                BlueprintName = "TEQuickPageViewController"
                ReferencedContainer = "container:Pods.xcodeproj"
                BuildableName = "TEQuickPageViewController.framework">

@@ -16,7 +16,6 @@ class UserDataService {
     
     public private(set) var categoryList: Results<Category>?
     public private(set) var todoItems: Results<Item>?
-    public private(set) var taskItems: Results<Task>?
     public private(set) var selectedCategory: Category?
     public private(set) var selectedItem: Item?
     public private(set) var selectedItemRow: Int = -1
@@ -60,8 +59,7 @@ class UserDataService {
         }
     }
     
-    func loadTaskItems() {
-    }
+
     
     func saveCategory(category: Category) {
         do {
@@ -84,6 +82,14 @@ class UserDataService {
                 print("Error to delete category, \(error)")
             }
         }
+    }
+    
+    func getCurrentTodoItemRoundsDone() -> Int {
+        
+        if selectedItem != nil {
+            return (selectedItem?.tasks.count)!
+        }
+        return 0
     }
     
     func updateTodoItems(at indexPath: IndexPath) {

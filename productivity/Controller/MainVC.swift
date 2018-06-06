@@ -11,6 +11,9 @@ import RealmSwift
 import FontAwesomeKit_Swift
 import UserNotifications
 import ScrollableGraphView
+import CRNotifications
+import NotificationBannerSwift
+import FillableLoaders
 
 
 class MainVC: UIViewController {
@@ -22,9 +25,6 @@ class MainVC: UIViewController {
     }
     
     let realm = try! Realm()
-    
-    let daysOfWeek: [String] = ["MON", "TUE", "WEN", "THU", "FRI", "SAT", "SUN"]
-
     
     // Настройка центра Уведомлений
     let centerNotif = UNUserNotificationCenter.current()
@@ -56,6 +56,11 @@ class MainVC: UIViewController {
     @IBOutlet weak var monthDateView: UIView!
     @IBOutlet weak var monthStatView: UIView!
     @IBOutlet weak var statView: UIView!
+    @IBOutlet weak var currentTaskStatView: UIView!
+    @IBOutlet weak var currentTaskCount: UILabel!
+    @IBOutlet weak var currentTaskPlanCount: UILabel!
+    @IBOutlet weak var currentTaskDueDate: UILabel!
+    @IBOutlet weak var currentTaskComleteGauge: UILabel!
     
     var timerCount = 25
     let workTimer = 25
@@ -66,18 +71,37 @@ class MainVC: UIViewController {
     var startTime: Date?
     var finisedTasksNumber: Int = 0
     var activityType: ActivityType = .work
-    var numberOfRounds: Int = 0
+    var numberOfRounds: Int = UserDefaults.standard.integer(forKey: "numberOfRounds")
     let dayMonth = Calendar.current.ordinality(of: .day, in: .month, for: Date())
     var weekStat: Array<Int> = []
     var weekGraphView: ScrollableGraphView!
-
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+//        let mainPath = UIBezierPath(rect: CGRect(x: currentTaskCount.frame.origin.x, y: currentTaskCount.frame.origin.y, width: currentTaskCount.frame.width, height: currentTaskCount.frame.height))
+//        mainPath.
+//
+//
+//        let loader = PlainLoader.createLoader(with: mainPath.cgPath, on: currentTaskCount)
+//        loader.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.4)
+//        loader.loaderColor = UIColor.red
+//
+//        loader.progressBased = true
+//
+//        loader.progress = 0.5
+//
+////        loader.
+//
+//        loader.showLoader()
+        
+        
+        setupComplitionIndicator()
+                
+        statView.roundCorners(corners: .allCorners, radius: 3)
+        
         weekStat = StatDataService.instance.loadWeekStat()
-
+        StatDataService.instance.loadWeekDaysNames()
         
         menuBtn.addTarget(self.revealViewController(), action: #selector(SWRevealViewController.revealToggle(_:)), for: .touchUpInside)
         self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
@@ -96,10 +120,10 @@ class MainVC: UIViewController {
         let barPlot = BarPlot(identifier: "bar")
         let referenceLines = ReferenceLines()
         
-        barPlot.barWidth = 20
+        barPlot.barWidth = 15
         barPlot.barLineWidth = 0.5
-        barPlot.barLineColor = UIColor.darkGray
-        barPlot.barColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.4)
+        barPlot.barLineColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+        barPlot.barColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.7)
         
         barPlot.adaptAnimationType = ScrollableGraphViewAnimationType.elastic
         barPlot.animationDuration = 1.5
@@ -135,13 +159,13 @@ class MainVC: UIViewController {
         
         // Add everything
         graphView.dataPointSpacing = 25
-        graphView.leftmostPointPadding = 35
+        graphView.leftmostPointPadding = 40
 //        graphView.shouldRangeAlwaysStartAtZero = true
         graphView.shouldAdaptRange = true
 //        graphView.addPlot(plot: dotPlot)
 //        graphView.addPlot(plot: linePlot)
         graphView.addPlot(plot: barPlot)
-        graphView.backgroundFillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.3)
+        graphView.backgroundFillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0)
         graphView.addReferenceLines(referenceLines: referenceLines)
         
         self.view.addSubview(graphView)
@@ -150,17 +174,16 @@ class MainVC: UIViewController {
         
 // Следим за обновлением данных по завершенным временным блокам
         
+        
+        
         var calendar = NSCalendar.current
         calendar.timeZone = TimeZone(abbreviation: "UTC")!
-        let todayAtMidnight = calendar.startOfDay(for: Date())
+        let todayAtMidnight = calendar.startOfDay(for: Date().localDate()!)
         let components = NSDateComponents()
         components.hour = 23
         components.minute = 59
         components.second = 59
         let endToday = Calendar.current.date(byAdding: components as DateComponents, to: todayAtMidnight)
-        print("Начало и конец дня:", todayAtMidnight, endToday!)
-        print("Текущая дата:", Date())
-        print(Date().startOfMonth()!, Date().endOfMonth()!)
         let dayResult = realm.objects(Task.self).filter("start > %@ && start < %@", todayAtMidnight, endToday!)
         let monthResult = realm.objects(Task.self).filter("start > %@ && start < %@", Date().startOfMonth()!, Date().endOfMonth()!)
         
@@ -173,10 +196,13 @@ class MainVC: UIViewController {
                 self?.weekStat = StatDataService.instance.loadWeekStat()
                 graphView.reload()
 
-                // Настраиваем показатели статистика за день
+                // Настраиваем показатели статистики за день
                 self?.currentDayOfMonth.text = "\(Date().currentDayOfMonth())"
                 self?.dayOfWeekLbl.text = "\(Date().currentDayOfWeek().uppercased())"
                 self?.dayCountLbl.text = "\(dayResult.count * 25)"
+                self?.currentTaskCount.text = "\(UserDataService.instance.getCurrentTodoItemRoundsDone() * 25)"
+                
+                self?.countGaugeStat()
                 
                 // Настраиваем показатель статистика за месяц
                 self?.monthCount.text = "\(Date().currentMonthName().uppercased())"
@@ -189,14 +215,19 @@ class MainVC: UIViewController {
                 self?.weekStat = StatDataService.instance.loadWeekStat()
                 graphView.reload()
 
-                // Настраиваем показатели статистика за день
+                // Настраиваем показатели статистики за день
                 self?.currentDayOfMonth.text = "\(Date().currentDayOfMonth())"
                 self?.dayOfWeekLbl.text = "\(Date().currentDayOfWeek().uppercased())"
                 self?.dayCountLbl.text = "\(dayResult.count * 25)"
+                self?.currentTaskCount.text = "\(UserDataService.instance.getCurrentTodoItemRoundsDone() * 25)"
+                
+                self?.countGaugeStat()
+
                 
                 // Настраиваем показатель статистика за месяц
                 self?.monthCount.text = "\(Date().currentMonthName().uppercased())"
                 self?.monthCountLbl.text = "\(monthResult.count * 25)"
+                self?.currentTaskCount.text = "\(UserDataService.instance.getCurrentTodoItemRoundsDone() * 25)"
             
             case .error(let error):
                 fatalError("\(error)")
@@ -216,15 +247,37 @@ class MainVC: UIViewController {
     
     
     @objc func taskDidSelect(notif: Notification) {
-       
-        taskLbl.text = UserDataService.instance.selectedItem?.name ?? "Select smth todo.."
+        
+        guard let selectedTask = UserDataService.instance.selectedItem else {return}
+        taskLbl.text = selectedTask.name ?? "Select smth todo.."
         timerCount = workTimer + 1
         updateTimer()
+        currentTaskCount.text = "\(UserDataService.instance.getCurrentTodoItemRoundsDone() * 25)"
+        
+        if UserDataService.instance.selectedItem?.dueDate != nil {
+//            currentTaskDueDate.text =
+        } else {
+            currentTaskDueDate.text = "DUE DATE NOT SET"
+            currentTaskDueDate.textColor = UIColor.white
+        }
+        
+        currentTaskPlanCount.text = "\((UserDataService.instance.selectedItem?.planCount)! * 25)"
+        
+        currentTaskStatView.isHidden = false
+        countGaugeStat()
+    }
+    
+    func countGaugeStat() {
+        guard let selectedTask = UserDataService.instance.selectedItem else {return}
+        let count = Float(selectedTask.tasks.count)
+        let planCount = Float(selectedTask.planCount)
+        let result = Int((count / planCount) * 100)
+        currentTaskComleteGauge.text = "\(result)%"
     }
         
     func runMainCount() {
         
-        startTime = Date()
+        startTime = Date().localDate()
         isMainCountRun = true
         triggerNotification()
         UserDefaults.standard.set(Date().timeIntervalSinceReferenceDate + Double(timerCount), forKey: "finishCount")
@@ -246,10 +299,11 @@ class MainVC: UIViewController {
                 // Сохраняем завершенный блок работы
                 let task = Task()
                 task.start = startTime
-                task.end = Date()
+                task.end = Date().localDate()
                 UserDataService.instance.saveFinishedTask(task: task)
                 
                 numberOfRounds += 1
+                UserDefaults.standard.set(numberOfRounds, forKey: "numberOfRounds")
             }
             
             
@@ -262,6 +316,7 @@ class MainVC: UIViewController {
                     activityType = .longRest
                     timerCount = longRestTimer
                     numberOfRounds = 0
+                    UserDefaults.standard.set(numberOfRounds, forKey: "numberOfRounds")
                 } else {
                     timerCount = workTimer
                     activityType = .work
@@ -279,6 +334,7 @@ class MainVC: UIViewController {
                 monthStatView.isHidden = true
                 statView.isHidden = true
                 weekGraphView.isHidden = true
+                currentTaskStatView.isHidden = true
             } else {
                 mainBG.image = UIImage(named: "mainBG")
                 setupComplitionIndicator()
@@ -288,6 +344,7 @@ class MainVC: UIViewController {
                 monthStatView.isHidden = false
                 statView.isHidden = false
                 weekGraphView.isHidden = false
+                currentTaskStatView.isHidden = false
                 
             }
         }
@@ -364,6 +421,8 @@ class MainVC: UIViewController {
         } else {
             timerStartPosition()
         }
+        
+        countGaugeStat()
     }
     
     func triggerNotification() {
@@ -387,10 +446,21 @@ class MainVC: UIViewController {
     }
     
     func notSelectedTaskAlert() {
-        let alert = UIAlertController(title: "Ops..!", message: "Please select a task to continue", preferredStyle: .alert)
-        let action = UIAlertAction(title: "Ok", style: .default, handler: nil)
-        alert.addAction(action)
-        self.present(alert, animated: true, completion: nil)
+        
+        let banner = NotificationBanner(title: "Ops..!", subtitle: "Please select a task to continue!", style: .warning)
+        banner.show()
+        
+//        let alert = UIAlertController(title: "Ops..!", message: "Please select a task to continue", preferredStyle: .alert)
+//        let action = UIAlertAction(title: "Ok", style: .default, handler: nil)
+//        alert.addAction(action)
+//        self.present(alert, animated: true, completion: nil)
+    }
+    
+    func creteStatusBarPath() -> CGPath {
+        
+        let mainPath2 = UIBezierPath(rect: CGRect(x: currentTaskCount.frame.origin.x, y: currentTaskCount.frame.origin.y, width: currentTaskCount.frame.width, height: currentTaskCount.frame.height))
+        
+        return mainPath2.cgPath
     }
     
 }
@@ -399,13 +469,11 @@ extension MainVC: UNUserNotificationCenterDelegate {
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         
-        print("Tapped in notification")
     }
     
     //This is key callback to present notification while the app is in foreground
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         
-        print("Notification being triggered")
         //You can either present alert ,sound or increase badge while the app is in foreground too with ios 10
         //to distinguish between notifications
         if notification.request.identifier == requestIdentifier {
@@ -433,7 +501,8 @@ extension MainVC: ScrollableGraphViewDataSource {
     }
     
     func label(atIndex pointIndex: Int) -> String {
-        return daysOfWeek[pointIndex]
+        
+        return StatDataService.instance.weekDays[pointIndex].uppercased()
     }
     
     func numberOfPoints() -> Int {

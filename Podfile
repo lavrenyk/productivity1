@@ -12,6 +12,8 @@ target 'productivity' do
   pod "FontAwesomeKit.Swift"
   pod "ScrollableGraphView"
   pod "CRNotifications"
+  pod "NotificationBannerSwift"
+  pod "FillableLoaders", "~>1.3.0"
 
 
 end
