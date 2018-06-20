@@ -14,8 +14,8 @@ class ItemCell: SwipeTableViewCell {
     //Outlets
     @IBOutlet weak var nameLbl: UILabel!
     @IBOutlet weak var categorySelectedFlag: UIView!
+    @IBOutlet weak var taskStatDataBtn: UIButton!
     
-
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -33,6 +33,7 @@ class ItemCell: SwipeTableViewCell {
         }
     }
     
+
         
     
 

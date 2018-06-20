@@ -40,10 +40,10 @@ class Counter {
             sec = "\(counterTime % 10)"
         } else {
             
-            let task = Task()
-            task.start = counterStartTime
-            task.end = Date()
-            UserDataService.instance.saveFinishedTask(task: task)
+            let workSession = WorkSession()
+            workSession.start = counterStartTime
+            workSession.end = Date()
+            UserDataService.instance.saveFinishedWorkSession(workSeesion: workSession)
             
         }
         

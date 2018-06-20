@@ -8,10 +8,9 @@
 
 import UIKit
 
-class AddItemVC: UIViewController {
+class AddProjectVC: UIViewController {
     
     //Outlets
-    @IBOutlet weak var bgView: UIView!
     @IBOutlet weak var mainView: UIView!
     @IBOutlet weak var itemNameTxt: UITextField!
     @IBOutlet weak var itemDescTxt: UITextField!
@@ -29,19 +28,19 @@ class AddItemVC: UIViewController {
     }
     
     @IBAction func createItemBtnPressed(_ sender: Any) {
-        guard let itemName = itemNameTxt.text, itemNameTxt.text != "" else {return}
+        guard let projectName = itemNameTxt.text, itemNameTxt.text != "" else {return}
         guard let planCount = itemPlanCountTxt.text, itemPlanCountTxt.text != "" else {return}
         
-        let item = Item()
-        item.name = itemName
+        let project = Project()
+        project.name = projectName
         if itemDescTxt.text != nil {
-            item.desc = itemDescTxt.text!
+            project.desc = itemDescTxt.text!
         }
         
-        item.planCount = Int(planCount) ?? 1
-        item.createdDate = Date()
+        project.planCount = Int(planCount) ?? 1
+        project.createdDate = Date()
         
-        UserDataService.instance.saveItem(item: item)
+        UserDataService.instance.saveProject(project: project)
         
         NotificationCenter.default.post(name: NOTIF_DATA_DID_CHANGE, object: nil)
         
@@ -50,7 +49,6 @@ class AddItemVC: UIViewController {
     
     func setupView() {
         let closeTouch = UITapGestureRecognizer(target: self, action: #selector(closeBtnPressed(_:)))
-        bgView.addGestureRecognizer(closeTouch)
         
         mainView.layer.cornerRadius = 10
 

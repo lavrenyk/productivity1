@@ -14,6 +14,6 @@ target 'productivity' do
   pod "CRNotifications"
   pod "NotificationBannerSwift"
   pod "FillableLoaders", "~>1.3.0"
-
+  pod "ValueStepper"
 
 end

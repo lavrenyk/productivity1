@@ -10,6 +10,11 @@ import Foundation
 import RealmSwift
 
 class Task: Object {
-    @objc dynamic var start: Date?
-    @objc dynamic var end: Date?
+    @objc dynamic var name: String = ""
+    @objc dynamic var createDate: Date?
+    @objc dynamic var finishDate: Date?
+    @objc dynamic var planCount: Int = 1
+    @objc dynamic var archived: Bool = false
+    let workSessions = List<WorkSession>()
+    var parentTask = LinkingObjects(fromType: Project.self, property: "tasks")
 }

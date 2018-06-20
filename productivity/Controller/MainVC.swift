@@ -19,6 +19,8 @@ import FillableLoaders
 class MainVC: UIViewController {
     
     var notificationTocken: NotificationToken? = nil
+    var notificationTocken1: NotificationToken? = nil
+
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return UIStatusBarStyle.lightContent;
@@ -69,7 +71,7 @@ class MainVC: UIViewController {
     var mainCount = Timer()
     var isMainCountRun = false
     var startTime: Date?
-    var finisedTasksNumber: Int = 0
+    var finisedWorkSessionNumber: Int = 0
     var activityType: ActivityType = .work
     var numberOfRounds: Int = UserDefaults.standard.integer(forKey: "numberOfRounds")
     let dayMonth = Calendar.current.ordinality(of: .day, in: .month, for: Date())
@@ -112,7 +114,7 @@ class MainVC: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground(notif:)), name: .UIApplicationWillEnterForeground, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(taskDidSelect(notif:)), name: NOTIF_TODO_ITEM_DID_SELECT, object: nil)
         
-// Создаем график
+        //MARK: Создаем недельный график на основном экране
         
         let graphView = ScrollableGraphView(frame: statView.frame, dataSource: self)
         
@@ -172,9 +174,7 @@ class MainVC: UIViewController {
         weekGraphView = graphView
         
         
-// Следим за обновлением данных по завершенным временным блокам
-        
-        
+        //MARK: Следим за обновлением данных по завершенным временным блокам
         
         var calendar = NSCalendar.current
         calendar.timeZone = TimeZone(abbreviation: "UTC")!
@@ -184,8 +184,9 @@ class MainVC: UIViewController {
         components.minute = 59
         components.second = 59
         let endToday = Calendar.current.date(byAdding: components as DateComponents, to: todayAtMidnight)
-        let dayResult = realm.objects(Task.self).filter("start > %@ && start < %@", todayAtMidnight, endToday!)
-        let monthResult = realm.objects(Task.self).filter("start > %@ && start < %@", Date().startOfMonth()!, Date().endOfMonth()!)
+        let dayResult = realm.objects(WorkSession.self).filter("start > %@ && start < %@", todayAtMidnight, endToday!)
+        let monthResult = realm.objects(WorkSession.self).filter("start > %@ && start < %@", Date().startOfMonth()!, Date().endOfMonth()!)
+        
         
         
         notificationTocken = dayResult.observe { [weak self] (changes: RealmCollectionChange ) in
@@ -200,7 +201,7 @@ class MainVC: UIViewController {
                 self?.currentDayOfMonth.text = "\(Date().currentDayOfMonth())"
                 self?.dayOfWeekLbl.text = "\(Date().currentDayOfWeek().uppercased())"
                 self?.dayCountLbl.text = "\(dayResult.count * 25)"
-                self?.currentTaskCount.text = "\(UserDataService.instance.getCurrentTodoItemRoundsDone() * 25)"
+                self?.currentTaskCount.text = "\(UserDataService.instance.getCurrentProjectWorkSeeionsDone() * 25)"
                 
                 self?.countGaugeStat()
                 
@@ -219,7 +220,7 @@ class MainVC: UIViewController {
                 self?.currentDayOfMonth.text = "\(Date().currentDayOfMonth())"
                 self?.dayOfWeekLbl.text = "\(Date().currentDayOfWeek().uppercased())"
                 self?.dayCountLbl.text = "\(dayResult.count * 25)"
-                self?.currentTaskCount.text = "\(UserDataService.instance.getCurrentTodoItemRoundsDone() * 25)"
+                self?.currentTaskCount.text = "\(UserDataService.instance.getCurrentProjectWorkSeeionsDone() * 25)"
                 
                 self?.countGaugeStat()
 
@@ -227,7 +228,9 @@ class MainVC: UIViewController {
                 // Настраиваем показатель статистика за месяц
                 self?.monthCount.text = "\(Date().currentMonthName().uppercased())"
                 self?.monthCountLbl.text = "\(monthResult.count * 25)"
-                self?.currentTaskCount.text = "\(UserDataService.instance.getCurrentTodoItemRoundsDone() * 25)"
+                self?.currentTaskCount.text = "\(UserDataService.instance.getCurrentProjectWorkSeeionsDone() * 25)"
+                
+                NotificationCenter.default.post(name: NOTIF_DATA_DID_CHANGE, object: nil)
             
             case .error(let error):
                 fatalError("\(error)")
@@ -246,31 +249,33 @@ class MainVC: UIViewController {
     }
     
     
+    
     @objc func taskDidSelect(notif: Notification) {
         
-        guard let selectedTask = UserDataService.instance.selectedItem else {return}
+        guard let selectedTask = UserDataService.instance.selectedProject else {return}
         taskLbl.text = selectedTask.name ?? "Select smth todo.."
         timerCount = workTimer + 1
         updateTimer()
-        currentTaskCount.text = "\(UserDataService.instance.getCurrentTodoItemRoundsDone() * 25)"
+        currentTaskCount.text = "\(UserDataService.instance.getCurrentProjectWorkSeeionsDone() * 25)"
         
-        if UserDataService.instance.selectedItem?.dueDate != nil {
+        if UserDataService.instance.selectedProject?.dueDate != nil {
 //            currentTaskDueDate.text =
         } else {
             currentTaskDueDate.text = "DUE DATE NOT SET"
             currentTaskDueDate.textColor = UIColor.white
         }
         
-        currentTaskPlanCount.text = "\((UserDataService.instance.selectedItem?.planCount)! * 25)"
+        currentTaskPlanCount.text = "\((UserDataService.instance.selectedProject?.planCount)! * 25)"
         
+
         currentTaskStatView.isHidden = false
         countGaugeStat()
     }
     
     func countGaugeStat() {
-        guard let selectedTask = UserDataService.instance.selectedItem else {return}
-        let count = Float(selectedTask.tasks.count)
-        let planCount = Float(selectedTask.planCount)
+        guard let selectedProject = UserDataService.instance.selectedProject else {return}
+        let count = Float(selectedProject.workSessions.count)
+        let planCount = Float(selectedProject.planCount)
         let result = Int((count / planCount) * 100)
         currentTaskComleteGauge.text = "\(result)%"
     }
@@ -297,10 +302,10 @@ class MainVC: UIViewController {
             if activityType == .work {
                 
                 // Сохраняем завершенный блок работы
-                let task = Task()
-                task.start = startTime
-                task.end = Date().localDate()
-                UserDataService.instance.saveFinishedTask(task: task)
+                let workSession = WorkSession()
+                workSession.start = startTime
+                workSession.end = Date().localDate()
+                UserDataService.instance.saveFinishedWorkSession(workSeesion: workSession)
                 
                 numberOfRounds += 1
                 UserDefaults.standard.set(numberOfRounds, forKey: "numberOfRounds")
@@ -351,7 +356,7 @@ class MainVC: UIViewController {
     }
     
     @objc func updateStat() {
-//        finisedTasksNumber = UserDataService.instance.selectedItem?.tasks.filter()
+//        finisedTasksNumber = UserDataService.instance.selectedProject?.workSession.fi
     }
     
     func setupComplitionIndicator() {
@@ -386,7 +391,7 @@ class MainVC: UIViewController {
     
     @IBAction func startCountPressed(_ sender: Any) {
         
-        if UserDataService.instance.selectedItem == nil {
+        if UserDataService.instance.selectedProject == nil {
             notSelectedTaskAlert()
             return
         }

@@ -22,7 +22,7 @@ class StatDataService {
         for index in 0...6 {
             let beginingOfWeekDay = Date().startOfWeek()! + Double(day * index)
             let endOfWeekDay = Date().endOfDay(date: beginingOfWeekDay)
-            let dayResult = realm.objects(Task.self).filter("start > %@ && start < %@", beginingOfWeekDay, endOfWeekDay)
+            let dayResult = realm.objects(WorkSession.self).filter("start > %@ && start < %@", beginingOfWeekDay, endOfWeekDay)
             
             weekStat.append(dayResult.count * 25)
         }

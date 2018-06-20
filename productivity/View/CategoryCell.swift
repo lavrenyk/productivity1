@@ -13,7 +13,6 @@ class CategoryCell: SwipeTableViewCell {
 
     // Outlets
     @IBOutlet weak var rounedCornerView: UIView!
-    @IBOutlet weak var labelIcon: UILabel!
     @IBOutlet weak var categoryTitleLbl: UILabel!
     
     

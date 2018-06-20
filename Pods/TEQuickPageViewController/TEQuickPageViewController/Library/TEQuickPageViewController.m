@@ -25,8 +25,6 @@
 @synthesize indicatorTint;
 @synthesize indicatorCurrentPageTint;
 
-- (BOOL)prefersStatusBarHidden {return YES;}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     

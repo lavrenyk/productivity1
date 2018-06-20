@@ -18,7 +18,7 @@ class WorkspacesTableVC: SwipeTableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-//        self.tableView.backgroundColor = #colorLiteral(red: 0.1725490196, green: 0.1725490196, blue: 0.2117647059, alpha: 1)
+
         
     }
     
@@ -48,9 +48,9 @@ class WorkspacesTableVC: SwipeTableViewController {
         let category = UserDataService.instance.categoryList![indexPath.row]
         
         cell?.categoryTitleLbl.text = category.name
-        cell?.labelIcon.text = category.icon
-        cell?.labelIcon.font = UIFont.fa?.fontSize(30)
-            
+//        cell?.labelIcon.text = category.icon
+//        cell?.labelIcon.font = UIFont.fa?.fontSize(30)
+        
         return cell!
         
         

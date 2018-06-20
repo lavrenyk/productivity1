@@ -9,7 +9,7 @@
 import Foundation
 import RealmSwift
 
-class Item: Object {
+class Project: Object {
     @objc dynamic var name: String = ""
     @objc dynamic var desc: String = ""
     @objc dynamic var createdDate: Date?
@@ -19,6 +19,7 @@ class Item: Object {
     @objc dynamic var finished: Bool = false
     @objc dynamic var achived: Bool = false
     let tasks = List<Task>()
-    var parentCategory = LinkingObjects(fromType: Category.self, property: "items")
+    let workSessions = List<WorkSession>()
+    var parentCategory = LinkingObjects(fromType: Category.self, property: "projects")
 }
 

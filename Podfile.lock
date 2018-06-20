@@ -1,20 +1,21 @@
 PODS:
-  - CRNotifications (1.1.3)
+  - CRNotifications (1.1.5)
   - FillableLoaders (1.3.0)
-  - FontAwesomeKit.Swift (0.4.2)
-  - MarqueeLabel/Swift (3.1.4)
-  - NotificationBannerSwift (1.6.2):
+  - FontAwesomeKit.Swift (1.0.0)
+  - MarqueeLabel/Swift (3.1.6)
+  - NotificationBannerSwift (1.6.3):
     - MarqueeLabel/Swift
     - SnapKit (~> 4.0)
-  - Realm (3.6.0):
-    - Realm/Headers (= 3.6.0)
-  - Realm/Headers (3.6.0)
-  - RealmSwift (3.6.0):
-    - Realm (= 3.6.0)
+  - Realm (3.7.4):
+    - Realm/Headers (= 3.7.4)
+  - Realm/Headers (3.7.4)
+  - RealmSwift (3.7.4):
+    - Realm (= 3.7.4)
   - ScrollableGraphView (4.0.5)
   - SnapKit (4.0.0)
-  - SwipeCellKit (2.4.1)
+  - SwipeCellKit (2.4.3)
   - TEQuickPageViewController (2.1.2)
+  - ValueStepper (1.5)
 
 DEPENDENCIES:
   - CRNotifications
@@ -25,6 +26,7 @@ DEPENDENCIES:
   - ScrollableGraphView
   - SwipeCellKit
   - TEQuickPageViewController
+  - ValueStepper
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -39,20 +41,22 @@ SPEC REPOS:
     - SnapKit
     - SwipeCellKit
     - TEQuickPageViewController
+    - ValueStepper
 
 SPEC CHECKSUMS:
-  CRNotifications: 887e7a676aa7b8f6684620f96618b6642c531394
+  CRNotifications: 38bd824eea18b77d818e7a317253d2b475f6a241
   FillableLoaders: 4decb0c33ce84a7da0da7be6b0fb15a87cb9906b
-  FontAwesomeKit.Swift: 252b2e05752e6c7410866693c7350e62313da910
-  MarqueeLabel: bf768455fe88d427f71476ebb23f9092b660f40b
-  NotificationBannerSwift: 4eceb2add9d5eaa0596c63d49690b4d6476e74ec
-  Realm: 08b464b462d4f31bbd4ba5f5a1c8722ef0a700b7
-  RealmSwift: 973e1499c44ab571f894c2c908e2db450be280c3
+  FontAwesomeKit.Swift: 39f3c77b644cfb39ad0b83243e8018093c97ff37
+  MarqueeLabel: 0c41f08ef5773e29c0f71064a8fa788a2fd8b365
+  NotificationBannerSwift: b231e4c3244848ef300e1c53ce027b9756b9b06f
+  Realm: a469bb59e33f9926102ccaea4349822c53b9117e
+  RealmSwift: a45861b21c180f5cf0f122144b9759fa8dde3e9e
   ScrollableGraphView: 6386dbae8d92e8ec9fda9f386f2ba6e2c90c59a3
   SnapKit: a42d492c16e80209130a3379f73596c3454b7694
-  SwipeCellKit: 189dab685734056ce3c803842759b73b8d6aa65f
+  SwipeCellKit: cee9906e6d3a36e22ad1a852fba7f8fa0839d113
   TEQuickPageViewController: e5a744eab09c03cb67042164eb6beb617b524d13
+  ValueStepper: e84d21a2ce62a7975df8b222c7273d6810f7e78c
 
-PODFILE CHECKSUM: 36c9fffcc4d7bb94d1a695f6d81a9d4e46d47ba2
+PODFILE CHECKSUM: 87dd10bfc17db27192a1f7a964ffe893bbce0539
 
 COCOAPODS: 1.5.3

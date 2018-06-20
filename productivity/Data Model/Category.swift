@@ -15,5 +15,5 @@ class Category: Object {
     @objc dynamic var desc: String = ""
     @objc dynamic var createdDate: Date?
     @objc dynamic var icon: String = ""
-    let items = List<Item>()
+    let projects = List<Project>()
 }

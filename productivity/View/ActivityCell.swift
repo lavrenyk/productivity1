@@ -30,8 +30,8 @@ class ActivityCell: SwipeTableViewCell {
         }
     }
     
-    func configureCell(item: Item) {
-        activityNameLbl.text = item.name
+    func configureCell(project: Project) {
+        activityNameLbl.text = project.name
     }
 
 }

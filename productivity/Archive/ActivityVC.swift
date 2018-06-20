@@ -49,7 +49,7 @@ class ActivityVC: UIViewController {
     
     //MARK: - Работа с данными
     
-    func save(items: Item) {
+    func save(project: Project) {
 //        do {
 //            try realm.write {
 //                realm.add(items)
