@@ -12,10 +12,22 @@ import RealmSwift
 class StatDataService {
     
     static let instance = StatDataService()
-    let realm = try! Realm()
+    let realm: Realm
     
     let day: Int = 86400
     var weekDays: [String] = []
+    
+    init() {
+        print("StatDataService \(SyncUser.current)")
+        if SyncUser.current != nil {
+            let configuration = Realm.Configuration(
+                syncConfiguration: SyncConfiguration(user: SyncUser.current!, realmURL: REALM_URL)
+            )
+            self.realm = try! Realm(configuration: configuration)
+        } else {
+            self.realm = try! Realm()
+        }
+    }
     
     func loadWeekStat() -> Array<Int> {
         var weekStat: Array<Int> = []

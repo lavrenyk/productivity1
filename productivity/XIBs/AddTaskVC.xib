@@ -20,6 +20,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AddTaskVC" customModule="productivity" customModuleProvider="target">
             <connections>
+                <outlet property="doneBtnPressed" destination="Ic2-xj-82U" id="xwb-tP-4HI"/>
                 <outlet property="mainView" destination="Cwp-t2-Up0" id="OPN-nm-POT"/>
                 <outlet property="planCount" destination="Pto-Tl-vKl" id="cLj-1K-4up"/>
                 <outlet property="taskName" destination="A9E-hx-uin" id="wL0-PH-uyk"/>
@@ -117,7 +118,7 @@
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="New TASK" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GHG-6t-nrK">
-                                        <rect key="frame" x="40" y="23" width="104.5" height="25"/>
+                                        <rect key="frame" x="40" y="23" width="90.5" height="25"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="25" id="jZU-dd-S0h"/>
                                         </constraints>

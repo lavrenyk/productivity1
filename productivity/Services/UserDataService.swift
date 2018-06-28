@@ -9,10 +9,25 @@
 import Foundation
 import RealmSwift
 
+
+
+
 class UserDataService {
     
     static let instance = UserDataService()
-    let realm = try! Realm()
+    
+    let realm: Realm
+        
+    init() {
+        if SyncUser.current != nil {
+            let configuration = Realm.Configuration(
+                syncConfiguration: SyncConfiguration(user: SyncUser.current!, realmURL: REALM_URL)
+            )
+            self.realm = try! Realm(configuration: configuration)
+        } else {
+            self.realm = try! Realm()
+        }
+    }
     
     public private(set) var categoryList: Results<Category>?
     public private(set) var projects: Results<Project>?
@@ -22,7 +37,11 @@ class UserDataService {
     public private(set) var selectedItemRow: Int = -1
     
     func loadCategoryList() {
-        categoryList = realm.objects(Category.self)
+        if SyncUser.current != nil {
+            categoryList = realm.objects(Category.self)
+        } else {
+            categoryList = realm.objects(Category.self)
+        }
     }
     
     // Фиксируем выбранную категорию
@@ -68,6 +87,19 @@ class UserDataService {
             try realm.write {
                 selectedProject?.tasks.insert(task, at: 0)
             }
+        } catch {
+            print("Error saving task, \(error)")
+        }
+    }
+    
+    // Сохраняем изменения в задаче
+    func saveProjectTaskChanges(task: Task) {        
+        do {
+            try realm.write {
+                selectedProjectTask?.name = task.name
+                selectedProjectTask?.planCount = task.planCount
+            }
+            print(task.planCount)
         } catch {
             print("Error saving task, \(error)")
         }

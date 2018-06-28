@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0F13652220DE57150072F2EA /* RealmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F13652120DE57150072F2EA /* RealmManager.swift */; };
 		0F1C415920AF69E400EA20E9 /* UserDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1C415820AF69E400EA20E9 /* UserDataService.swift */; };
 		0F1C415D20B321C100EA20E9 /* SwipeTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1C415C20B321C100EA20E9 /* SwipeTableViewController.swift */; };
 		0F1C415F20B328F300EA20E9 /* WorkspacesTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1C415E20B328F300EA20E9 /* WorkspacesTableVC.swift */; };
@@ -81,6 +82,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0F13652120DE57150072F2EA /* RealmManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmManager.swift; sourceTree = "<group>"; };
 		0F1C415820AF69E400EA20E9 /* UserDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataService.swift; sourceTree = "<group>"; };
 		0F1C415C20B321C100EA20E9 /* SwipeTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeTableViewController.swift; sourceTree = "<group>"; };
 		0F1C415E20B328F300EA20E9 /* WorkspacesTableVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacesTableVC.swift; sourceTree = "<group>"; };
@@ -178,6 +180,7 @@
 				0F1C415820AF69E400EA20E9 /* UserDataService.swift */,
 				0FBEF39020BC89AB004DD1B1 /* TimerService.swift */,
 				0FBEF3E020C56D8C004DD1B1 /* StatDataService.swift */,
+				0F13652120DE57150072F2EA /* RealmManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -394,7 +397,7 @@
 				0F84950D20AAECB000610F96 /* Sources */,
 				0F84950E20AAECB000610F96 /* Frameworks */,
 				0F84950F20AAECB000610F96 /* Resources */,
-				58C821F37B79176598865CD7 /* [CP] Embed Pods Frameworks */,
+				F999DFE5AB86316080AFD946 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -487,7 +490,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		58C821F37B79176598865CD7 /* [CP] Embed Pods Frameworks */ = {
+		7E48DEEB1C099A985767D15D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-productivity-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F999DFE5AB86316080AFD946 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -527,24 +548,6 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-productivity/Pods-productivity-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		7E48DEEB1C099A985767D15D /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-productivity-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -575,6 +578,7 @@
 				0FBEF38F20BB1F36004DD1B1 /* UIViewControllerExt.swift in Sources */,
 				0FBEF39120BC89AB004DD1B1 /* TimerService.swift in Sources */,
 				0F84958F20AF06F900610F96 /* Category.swift in Sources */,
+				0F13652220DE57150072F2EA /* RealmManager.swift in Sources */,
 				0F355D3B20B974DB007A50A0 /* ItemsTableVC.swift in Sources */,
 				0FBEF39720C07A48004DD1B1 /* Counter.swift in Sources */,
 				0F84954220AB656700610F96 /* WorkspaceCell.swift in Sources */,

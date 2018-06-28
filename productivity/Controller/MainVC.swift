@@ -21,12 +21,14 @@ class MainVC: UIViewController {
     var notificationTocken: NotificationToken? = nil
     var notificationTocken1: NotificationToken? = nil
 
+    var realm: Realm!
+    var user: SyncUser?
+
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return UIStatusBarStyle.lightContent;
     }
     
-    let realm = try! Realm()
     
     // Настройка центра Уведомлений
     let centerNotif = UNUserNotificationCenter.current()
@@ -63,7 +65,9 @@ class MainVC: UIViewController {
     @IBOutlet weak var currentTaskPlanCount: UILabel!
     @IBOutlet weak var currentTaskDueDate: UILabel!
     @IBOutlet weak var currentTaskComleteGauge: UILabel!
+    @IBOutlet weak var logInOutBtn: UIButton!
     
+    let day: Int = 86400
     var timerCount = 25
     let workTimer = 25
     let restTimer = 5
@@ -77,26 +81,10 @@ class MainVC: UIViewController {
     let dayMonth = Calendar.current.ordinality(of: .day, in: .month, for: Date())
     var weekStat: Array<Int> = []
     var weekGraphView: ScrollableGraphView!
+    var graphView: ScrollableGraphView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-//        let mainPath = UIBezierPath(rect: CGRect(x: currentTaskCount.frame.origin.x, y: currentTaskCount.frame.origin.y, width: currentTaskCount.frame.width, height: currentTaskCount.frame.height))
-//        mainPath.
-//
-//
-//        let loader = PlainLoader.createLoader(with: mainPath.cgPath, on: currentTaskCount)
-//        loader.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.4)
-//        loader.loaderColor = UIColor.red
-//
-//        loader.progressBased = true
-//
-//        loader.progress = 0.5
-//
-////        loader.
-//
-//        loader.showLoader()
-        
         
         setupComplitionIndicator()
                 
@@ -116,7 +104,35 @@ class MainVC: UIViewController {
         
         //MARK: Создаем недельный график на основном экране
         
-        let graphView = ScrollableGraphView(frame: statView.frame, dataSource: self)
+        
+        
+        setupRealm()
+        
+        if SyncUser.current != nil {
+            initialStat()
+            logInOutBtn.setImage(UIImage(named: "login"), for: .normal)
+        } else {
+            logInOutBtn.setImage(UIImage(named: "logout"), for: .normal)
+        }
+        
+        graphRedraw()
+        
+        timerStartPosition()
+
+        if UserDefaults.standard.bool(forKey: "startSetuped") == false {
+            UserDataService.instance.initialCategoriesSetup()
+            UserDefaults.standard.set(true, forKey: "startSetuped")
+        }
+
+    
+        
+    }
+    
+    func graphRedraw() {
+        
+        print("Graph REDRAW!")
+        
+        graphView = ScrollableGraphView(frame: statView.frame, dataSource: self)
         
         // Setup the plot
         let barPlot = BarPlot(identifier: "bar")
@@ -157,96 +173,152 @@ class MainVC: UIViewController {
         
         referenceLines.positionType = .relative
         
-        
-        
         // Add everything
         graphView.dataPointSpacing = 25
         graphView.leftmostPointPadding = 40
-//        graphView.shouldRangeAlwaysStartAtZero = true
         graphView.shouldAdaptRange = true
-//        graphView.addPlot(plot: dotPlot)
-//        graphView.addPlot(plot: linePlot)
         graphView.addPlot(plot: barPlot)
         graphView.backgroundFillColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0)
         graphView.addReferenceLines(referenceLines: referenceLines)
         
         self.view.addSubview(graphView)
         weekGraphView = graphView
-        
-        
-        //MARK: Следим за обновлением данных по завершенным временным блокам
-        
-        var calendar = NSCalendar.current
-        calendar.timeZone = TimeZone(abbreviation: "UTC")!
-        let todayAtMidnight = calendar.startOfDay(for: Date().localDate()!)
-        let components = NSDateComponents()
-        components.hour = 23
-        components.minute = 59
-        components.second = 59
-        let endToday = Calendar.current.date(byAdding: components as DateComponents, to: todayAtMidnight)
-        let dayResult = realm.objects(WorkSession.self).filter("start > %@ && start < %@", todayAtMidnight, endToday!)
-        let monthResult = realm.objects(WorkSession.self).filter("start > %@ && start < %@", Date().startOfMonth()!, Date().endOfMonth()!)
-        
-        
-        
-        notificationTocken = dayResult.observe { [weak self] (changes: RealmCollectionChange ) in
-            switch changes {
-            case .initial:
-                
-                // загружаем показатели статистики за неделю
-                self?.weekStat = StatDataService.instance.loadWeekStat()
-                graphView.reload()
-
-                // Настраиваем показатели статистики за день
-                self?.currentDayOfMonth.text = "\(Date().currentDayOfMonth())"
-                self?.dayOfWeekLbl.text = "\(Date().currentDayOfWeek().uppercased())"
-                self?.dayCountLbl.text = "\(dayResult.count * 25)"
-                self?.currentTaskCount.text = "\(UserDataService.instance.getCurrentProjectWorkSeeionsDone() * 25)"
-                
-                self?.countGaugeStat()
-                
-                // Настраиваем показатель статистика за месяц
-                self?.monthCount.text = "\(Date().currentMonthName().uppercased())"
-                self?.monthCountLbl.text = "\(monthResult.count * 25)"
-                
-            case .update(_, _,  _, _):
-                
-// !!! ПОВТОРЯЮЩИЙСЯ КОД, НЕОБХОДИМО ИСПРАВИТЬ !!!
-                // загружаем показатели статистики за неделю
-                self?.weekStat = StatDataService.instance.loadWeekStat()
-                graphView.reload()
-
-                // Настраиваем показатели статистики за день
-                self?.currentDayOfMonth.text = "\(Date().currentDayOfMonth())"
-                self?.dayOfWeekLbl.text = "\(Date().currentDayOfWeek().uppercased())"
-                self?.dayCountLbl.text = "\(dayResult.count * 25)"
-                self?.currentTaskCount.text = "\(UserDataService.instance.getCurrentProjectWorkSeeionsDone() * 25)"
-                
-                self?.countGaugeStat()
-
-                
-                // Настраиваем показатель статистика за месяц
-                self?.monthCount.text = "\(Date().currentMonthName().uppercased())"
-                self?.monthCountLbl.text = "\(monthResult.count * 25)"
-                self?.currentTaskCount.text = "\(UserDataService.instance.getCurrentProjectWorkSeeionsDone() * 25)"
-                
-                NotificationCenter.default.post(name: NOTIF_DATA_DID_CHANGE, object: nil)
-            
-            case .error(let error):
-                fatalError("\(error)")
-            }
-        }
-        
-        timerStartPosition()
-
-        if UserDefaults.standard.bool(forKey: "startSetuped") == false {
-            UserDataService.instance.initialCategoriesSetup()
-            UserDefaults.standard.set(true, forKey: "startSetuped")
-        }
+    }
 
     
-        
+    func initialStat() {
+        print(realm)
+        if realm != nil {
+            
+            print("load initial staff!")
+            
+            var calendar = NSCalendar.current
+            calendar.timeZone = TimeZone(abbreviation: "UTC")!
+            let todayAtMidnight = calendar.startOfDay(for: Date().localDate()!)
+            let components = NSDateComponents()
+            components.hour = 23
+            components.minute = 59
+            components.second = 59
+            let endToday = Calendar.current.date(byAdding: components as DateComponents, to: todayAtMidnight)
+            let dayResult = realm.objects(WorkSession.self).filter("start > %@ && start < %@", todayAtMidnight, endToday!)
+            let monthResult = realm.objects(WorkSession.self).filter("start > %@ && start < %@", Date().startOfMonth()!, Date().endOfMonth()!)
+            
+            notificationTocken = dayResult.observe { [weak self] (changes: RealmCollectionChange ) in
+                switch changes {
+                case .initial:
+                    
+                    // загружаем показатели статистики за неделю
+                    self?.weekStat = self!.loadWeekStat()
+                    self?.graphView.reload()
+                
+                    print("Load initial data")
+                    
+                    // Настраиваем показатели статистики за день
+                    self?.currentDayOfMonth.text = "\(Date().currentDayOfMonth())"
+                    self?.dayOfWeekLbl.text = "\(Date().currentDayOfWeek().uppercased())"
+                    self?.dayCountLbl.text = "\(dayResult.count * 25)"
+                    self?.currentTaskCount.text = "\(UserDataService.instance.getCurrentProjectWorkSeeionsDone() * 25)"
+                    
+                    self?.countGaugeStat()
+                    
+                    // Настраиваем показатель статистика за месяц
+                    self?.monthCount.text = "\(Date().currentMonthName().uppercased())"
+                    self?.monthCountLbl.text = "\(monthResult.count * 25)"
+                    
+                case .update(_, _,  _, _):
+                    
+                    print("load update data!")
+                    
+                    // !!! ПОВТОРЯЮЩИЙСЯ КОД, НЕОБХОДИМО ИСПРАВИТЬ !!!
+                    // загружаем показатели статистики за неделю
+                    self?.weekStat = self!.loadWeekStat()
+                    self?.graphView.reload()
+                    
+                    // Настраиваем показатели статистики за день
+                    self?.currentDayOfMonth.text = "\(Date().currentDayOfMonth())"
+                    self?.dayOfWeekLbl.text = "\(Date().currentDayOfWeek().uppercased())"
+                    self?.dayCountLbl.text = "\(dayResult.count * 25)"
+                    self?.currentTaskCount.text = "\(UserDataService.instance.getCurrentProjectWorkSeeionsDone() * 25)"
+                    
+                    self?.countGaugeStat()
+                    
+                    
+                    // Настраиваем показатель статистика за месяц
+                    self?.monthCount.text = "\(Date().currentMonthName().uppercased())"
+                    self?.monthCountLbl.text = "\(monthResult.count * 25)"
+                    self?.currentTaskCount.text = "\(UserDataService.instance.getCurrentProjectWorkSeeionsDone() * 25)"
+                    
+                    NotificationCenter.default.post(name: NOTIF_DATA_DID_CHANGE, object: nil)
+                    
+                case .error(let error):
+                    fatalError("\(error)")
+                }
+            }
+            
+        }
     }
+    
+    func loadWeekStat() -> Array<Int> {
+        var weekStat: Array<Int> = []
+        for index in 0...6 {
+            let beginingOfWeekDay = Date().startOfWeek()! + Double(day * index)
+            let endOfWeekDay = Date().endOfDay(date: beginingOfWeekDay)
+            let dayResult = realm.objects(WorkSession.self).filter("start > %@ && start < %@", beginingOfWeekDay, endOfWeekDay)
+            
+            weekStat.append(dayResult.count * 25)
+        }
+        
+        return weekStat
+    }
+    
+    func setupRealm() {
+        if let _ = SyncUser.current {
+            // We have already logged in here!
+            print("We have already logged in!")
+            let configuration = Realm.Configuration(
+                syncConfiguration: SyncConfiguration(user: SyncUser.current!, realmURL: REALM_URL)
+            )
+            self.realm = try! Realm(configuration: configuration)
+            initialStat()
+        } else {
+            let alertController = UIAlertController(title: "Login to Realm Cloud", message: "Supply a nice nickname!", preferredStyle: .alert)
+            
+            alertController.addAction(UIAlertAction(title: "Login", style: .default, handler: { [unowned self]
+                alert -> Void in
+                
+                SyncUser.logIn(with: .usernamePassword(username: REALM_USERNAME, password: REALM_PASSWORD), server: AUTH_URL, onCompletion: { [weak self](user, err) in
+                    if let user = user {
+                        let configuration = Realm.Configuration(
+                            syncConfiguration: SyncConfiguration(user: user, realmURL: REALM_URL)
+                        )
+                        self?.realm = try! Realm(configuration: configuration)
+                        
+                        print("Login sucessiful!")
+                        StatDataService.init()
+                        self?.logInOutBtn.setImage(UIImage(named: "login"), for: .normal)
+                        self?.initialStat()
+                    } else if let error = err {
+                        fatalError(error.localizedDescription)
+                    }
+                })
+            }))
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            self.present(alertController, animated: true, completion: nil)
+        }
+    }
+    
+    @IBAction func loginBtnPressed(_ sender: Any) {
+        print(SyncUser.current)
+        if SyncUser.current != nil {
+            SyncUser.current?.logOut()
+            logInOutBtn.setImage(UIImage(named: "logout"), for: .normal)
+        } else {
+            self.setupRealm()
+            self.initialStat()
+        }
+    }
+    
+
     
     
     
@@ -466,6 +538,10 @@ class MainVC: UIViewController {
         let mainPath2 = UIBezierPath(rect: CGRect(x: currentTaskCount.frame.origin.x, y: currentTaskCount.frame.origin.y, width: currentTaskCount.frame.width, height: currentTaskCount.frame.height))
         
         return mainPath2.cgPath
+    }
+    
+    deinit {
+        notificationTocken?.invalidate()
     }
     
 }

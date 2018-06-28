@@ -12,7 +12,6 @@ import RealmSwift
 
 class ItemsTableVC: SwipeTableViewController, HeaderCellDeligate {
     
-    var notificationTocken: NotificationToken? = nil
     
     var tableWidth: CGFloat = 0
     var expandedSection = -1
@@ -36,21 +35,12 @@ class ItemsTableVC: SwipeTableViewController, HeaderCellDeligate {
         tableWidth = tableView.frame.size.width - 20
         
         tableView.estimatedRowHeight = 41
-        
-        notificationTocken = realm.observe { (notification, realm) in
-//            UserDataService.instance.loadProjects(category: User)
-        }
-
-        
-        
-        
-        
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        tableView.frame.size.width = tableWidth
         
+        tableView.frame.size.width = tableWidth
     }
 
 
@@ -66,8 +56,17 @@ class ItemsTableVC: SwipeTableViewController, HeaderCellDeligate {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if expandedSection == section {
-            print(UserDataService.instance.projects![section].tasks.count)
-            return UserDataService.instance.projects![section].tasks.count
+            
+            let projectData = UserDataService.instance.projects![section]
+            let result = projectData.tasks.filter("archived == false").count
+            var tasks = 0
+            for i in 0..<projectData.tasks.count {
+                if !projectData.tasks[i].archived {
+                    tasks += 1
+                }
+            }
+            print(result)
+            return UserDataService.instance.projects![section].tasks.filter("archived == false").count
         } else {
             return 0
         }
@@ -79,12 +78,12 @@ class ItemsTableVC: SwipeTableViewController, HeaderCellDeligate {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "headerCell") as? HeaderCell else {return UITableViewCell()}
         
         let cellData = UserDataService.instance.projects?[section]
-        let count = Float((cellData?.workSessions.count)!)
-        let planCount = Float((cellData?.planCount)!)
-        let result = Int((count / planCount) * 100)
+//        let count = Float((cellData?.workSessions.count)!)
+//        let planCount = Float((cellData?.planCount)!)
+//        let result = Int((count / planCount) * 100)
         
         cell.nameLbl.text = cellData?.name
-        cell.showStatBtn.setTitle("\(result)%", for: .normal)
+        cell.showStatBtn.setTitle("\((cellData?.workSessions.count)! * 25)", for: .normal)
         
         if expandedSection == section {
             cell.nameLbl.font = UIFont(name: "RobotoCondensed-Regular", size: 20)
@@ -122,18 +121,27 @@ class ItemsTableVC: SwipeTableViewController, HeaderCellDeligate {
         present(addTask, animated: false, completion: nil)
     }
     
+    func editTask(index: Int) {
+        let addTask = AddTaskVC()
+        
+        addTask.isEditTask = true
+        addTask.editTaskIndex = index
+        addTask.modalPresentationStyle = .custom
+        present(addTask, animated: false, completion: nil)
+    }
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "ItemCell") as? ItemCell else {return UITableViewCell()}
         
-        let cellData = UserDataService.instance.projects?[indexPath.section].tasks[indexPath.row]
+        let cellData = UserDataService.instance.projects?[indexPath.section].tasks.filter("archived == false")[indexPath.row]
         
         cell.nameLbl.text = cellData?.name
         
-        let count = Float((cellData?.workSessions.count)!)
-        let planCount = Float((cellData?.planCount)!)
-        let result = Int((count / planCount) * 100)
-        cell.taskStatDataBtn.setTitle("\(result)%", for: .normal)
+//        let count = Float((cellData?.workSessions.count)!)
+//        let planCount = Float((cellData?.planCount)!)
+//        let result = Int((count / planCount) * 100)
+        cell.taskStatDataBtn.setTitle("\((cellData?.workSessions.count)! * 25)", for: .normal)
         
         cell.delegate = self
             
@@ -148,7 +156,15 @@ class ItemsTableVC: SwipeTableViewController, HeaderCellDeligate {
             guard isSwipeRightEnable else { return nil }
             
             let complete = SwipeAction(style: .default, title: nil) { (action, indexPath) in
-                print("Check task comleted!")
+                do {
+                    try self.realm.write {
+                        UserDataService.instance.selectedProject?.tasks[indexPath.row].archived = true
+                        UserDataService.instance.selectedProject?.tasks[indexPath.row].finishDate = Date()
+                    }
+                    tableView.reloadData()
+                } catch {
+                    print("Error archiving task!")
+                }
             }
             
             complete.hidesWhenSelected = true
@@ -167,9 +183,26 @@ class ItemsTableVC: SwipeTableViewController, HeaderCellDeligate {
             }
             
             delete.image = UIImage(named: "trash")
+
+            
+            let edit = SwipeAction(style: .default, title: nil) { (action, indexPath) in
+//                print(UserDataService.instance.selectedProject?.tasks[indexPath.row].name)
+                
+//                let editTask = AddTaskVC()
+//                editTask.taskName.text = UserDataService.instance.selectedProject?.tasks[indexPath.row].name
+                
+                UserDataService.instance.setSelectedProjectTask(index: indexPath.row)
+                self.editTask(index: indexPath.row)
+            }
+            
+            edit.hidesWhenSelected = true
+            edit.backgroundColor = #colorLiteral(red: 0.9139201045, green: 0.6803395152, blue: 0.3184101582, alpha: 1)
+            edit.image = UIImage(named: "settings")
             
             
-            return[delete]
+            
+            
+            return[delete, edit]
         }
         
         
